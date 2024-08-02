@@ -10,6 +10,7 @@ ot2 = '((((((((A_O.sativa:0.1,A_O.glaberrima:0.1):0.1,(A_O.barthii:0.1,A_O.glumi
 
 ##########################################################################
 
+
 #extract leaves
 def leaves(nw):
     return [x.split(':')[0].replace('(','') for x in nw.split(',')]
@@ -81,11 +82,11 @@ def trail(df):
     t = []
     for a,b,c in df.values:
         if isinstance(a,int):
-            na = '%1.10f' % a
+            na = '%016.10f' % a
         else:
             na = a
         if isinstance(b,int):
-            nb = '%1.10f' % b
+            nb = '%016.10f' % b
         else:
             nb = b
         t.append((na,nb,c))   
@@ -108,8 +109,8 @@ def reasign(df2,bt):
     return df3
 
 def expand_node(df,node):
-    tmp = df[df[0] == '%1.10f'% float(node)] #dependency on pandas.
-   
+    tmp = df[df[0] == '%016.10f' % float(node)] #dependency on pandas.
+    
     expanded_node = ''
     for a,b,c in tmp.values: #tmp.values when depends on pandas
         expanded_node = expanded_node+','+str(b)+':'+str(c)
@@ -127,7 +128,7 @@ def recur_pd_nw(nt,df):
 
 #flip label order
 def expand_node_flip(df,node):
-    tmp = df[df[0] == '%1.10f'% float(node)] #dependency on pandas.
+    tmp = df[df[0] == '%016.10f'% float(node)] #dependency on pandas.
     expanded_node = ''
     for a,b,c in tmp.values: #tmp.values when depends on pandas
         expanded_node = str(b)+':'+str(c)+','+expanded_node
@@ -144,7 +145,7 @@ def flip_all_edges(tree):
     root_node,b = (recur_nw_pd(tree,len(leaves(tree)),[]))
     root_node = int(root_node.replace('__',''))
     tb = encode_leaves(tree,b)
-    new = recur_pd_nw_flip('%1.10f' % root_node, trail(reasign(pd.DataFrame(tb),tree))) 
+    new = recur_pd_nw_flip('%016.10f' % root_node, trail(reasign(pd.DataFrame(tb),tree))) 
     return new
 
 #flip specified node edges
@@ -152,7 +153,7 @@ def recur_pd_nw_flip_at_node(nt,df,node):
     int_nodes = df[0].astype(str).unique()
     for i in leaves(nt):
         if i in int_nodes:
-            if i == str('%1.10f' % node):
+            if i == str('%016.10f' % node):
                 return recur_pd_nw_flip_at_node(nt.replace(i,expand_node_flip(df,i)),df,node)
             else:
                 return recur_pd_nw_flip_at_node(nt.replace(i,expand_node(df,i)),df,node)  
@@ -161,7 +162,7 @@ def flip_leaves_at_node(tree,node):
     root_node,b = (recur_nw_pd(tree,len(leaves(tree)),[]))
     root_node = int(root_node.replace('__',''))
     tb = encode_leaves(tree,b)
-    new = recur_pd_nw_flip_at_node('%1.10f' % root_node, trail(reasign(pd.DataFrame(tb),tree)),node)
+    new = recur_pd_nw_flip_at_node('%016.10f' % root_node, trail(reasign(pd.DataFrame(tb),tree)),node)
     return new
 
 
@@ -171,7 +172,7 @@ def travel(tree):
     root_node,b = (recur_nw_pd(tree,len(leaves(tree)),[]))
     root_node = int(root_node.replace('__',''))
     tb = encode_leaves(tree,b)
-    new = recur_pd_nw('%1.10f' % root_node, trail(reasign(pd.DataFrame(tb),tree)))
+    new = recur_pd_nw('%016.10f' % root_node, trail(reasign(pd.DataFrame(tb),tree)))
     return new
 
 
@@ -184,8 +185,8 @@ def all_trees(bt):
     
     t = []
     for i in x:
-        t.append(recur_pd_nw('%1.10f' % i, trail(reasign(swap_root(tb,i),bt))))
-        print(recur_pd_nw('%1.10f' % i, trail(reasign(swap_root(tb,i),bt))))
+        t.append(recur_pd_nw('%016.10f' % i, trail(reasign(swap_root(tb,i),bt))))
+        print(recur_pd_nw('%016.10f' % i, trail(reasign(swap_root(tb,i),bt))))
     return t
 
 def extract_subtree(tree, leaves_to_keep):
@@ -209,7 +210,7 @@ def extract_subtree(tree, leaves_to_keep):
     if bd[~bd[0].duplicated(keep = False)].shape[0] == 0:
         c = pd.DataFrame(encode_leaves(t,b2))
         c = trail(reasign(c,t))
-        return recur_pd_nw('%1.10f' % mi,c)
+        return recur_pd_nw('%016.10f' % mi,c)
     
     #join_singular_nodes
     carry_over = 0
@@ -228,12 +229,12 @@ def extract_subtree(tree, leaves_to_keep):
     bd.loc[bd[1] == '__'+str(pl),2] = bd.loc[bd[1] == '__'+str(pl),2] + carry_over
     bd.loc[bd[1] == '__'+str(pl),1] = pr
     
-    b2 = bd[bd[0].duplicated(keep = False)].values
+    b2 = bd[bd[0].duplicated(keep = False)].round(decimals=8).values
     
     c = pd.DataFrame(encode_leaves(t,b2))
     c = trail(reasign(c,t))
     
-    return recur_pd_nw('%1.10f' % mi,c)
+    return recur_pd_nw('%016.10f' % mi,c)
 
 #singularize nodes in a tree. i.e., remove extra nodes.
 def recur_sin(new):
@@ -243,7 +244,7 @@ def recur_sin(new):
             leaf_without_branch = leaf.split(':')[0]
             inner_branch = float(leaf.split(':')[1])
             outer_branch = float(new.split(enclosed_leaf)[1].split(',')[0].split(')')[0][1:])
-            new_branch = inner_branch+outer_branch
+            new_branch = round(inner_branch+outer_branch,8)
             enclosed_leaf_with_outer_branch = enclosed_leaf+':'+str(outer_branch)
             new = new.replace(enclosed_leaf_with_outer_branch, leaf_without_branch+':'+str(new_branch))
             return recur_sin(new)
