@@ -1,11 +1,11 @@
-import random
+#import random
 import pandas as pd
 import matplotlib.pyplot as plt
 
 #test data
-bt  = "(t6:0.3806255851,(t7:0.5440872659,(t5:0.6203179485,t1:0.7089423968):0.3421749519):0.2618428892,((t4:0.5886056426,t3:0.8614832051):0.09094934678,(t8:0.6766210056,t2:0.1412485428):0.4451906278):0.2356684168)"
-ot = '(((((((((A_O.sativa:0.1,A_O.glaberrima:0.1):0.1,(A_O.barthii:0.1,A_O.glumipatula:0.1):0.1):0.1,(A_O.meridionalis:0.1,A_O.nivara:0.1,A_O.rufipogon:0.1):0.1):0.1,B_O.punctata:0.1):0.1,((C_O.officinalis:0.1,C_O.alta:0.1):0.1,D_O.alta:0.1):0.1):0.1,E_O.australiensis:0.1):0.1,F_O.brachyantha:0.1):0.1,(K_O.coarctata:0.1,L_O.coarctata:0.1):0.1):0.1,OG_L.perrieri:0.1)'
-ot2 = '((((((((A_O.sativa:0.1,A_O.glaberrima:0.1):0.1,(A_O.barthii:0.1,A_O.glumipatula:0.1):0.1):0.1,(A_O.meridionalis:0.1,A_O.nivara:0.1,A_O.rufipogon:0.1):0.1):0.1,B_O.punctata:0.1):0.1,((C_O.officinalis:0.1,C_O.alta:0.1):0.1,D_O.alta:0.1):0.1):0.1,E_O.australiensis:0.1):0.1,F_O.brachyantha:0.1):0.1,(K_O.coarctata:0.1,L_O.coarctata:0.1):0.1,OG_L.perrieri:0.1)'
+#bt  = "(t6:0.3806255851,(t7:0.5440872659,(t5:0.6203179485,t1:0.7089423968):0.3421749519):0.2618428892,((t4:0.5886056426,t3:0.8614832051):0.09094934678,(t8:0.6766210056,t2:0.1412485428):0.4451906278):0.2356684168)"
+#ot = '(((((((((A_O.sativa:0.1,A_O.glaberrima:0.1):0.1,(A_O.barthii:0.1,A_O.glumipatula:0.1):0.1):0.1,(A_O.meridionalis:0.1,A_O.nivara:0.1,A_O.rufipogon:0.1):0.1):0.1,B_O.punctata:0.1):0.1,((C_O.officinalis:0.1,C_O.alta:0.1):0.1,D_O.alta:0.1):0.1):0.1,E_O.australiensis:0.1):0.1,F_O.brachyantha:0.1):0.1,(K_O.coarctata:0.1,L_O.coarctata:0.1):0.1):0.1,OG_L.perrieri:0.1)'
+#ot2 = '((((((((A_O.sativa:0.1,A_O.glaberrima:0.1):0.1,(A_O.barthii:0.1,A_O.glumipatula:0.1):0.1):0.1,(A_O.meridionalis:0.1,A_O.nivara:0.1,A_O.rufipogon:0.1):0.1):0.1,B_O.punctata:0.1):0.1,((C_O.officinalis:0.1,C_O.alta:0.1):0.1,D_O.alta:0.1):0.1):0.1,E_O.australiensis:0.1):0.1,F_O.brachyantha:0.1):0.1,(K_O.coarctata:0.1,L_O.coarctata:0.1):0.1,OG_L.perrieri:0.1)'
 
 
 ##########################################################################
@@ -20,7 +20,7 @@ def leaves_wb(nw):
     return [x.split(')')[0].replace('(','') for x in nw.split(',')]
 
 #make sure labels are unique. Append numbers if they are not
-assert len(leaves(bt)) == len(set(leaves(bt)))
+#assert len(leaves(bt)) == len(set(leaves(bt)))
 
 #label leaves
 def lale(nw):
@@ -44,6 +44,11 @@ def recur_nw_pd(bt,n,t): #,n = len(leaves(bt)),t = []): #default arguments cause
             return recur_nw_pd(nt,n,t)
     return bt,t
 
+
+#convert nw to tsv
+def nw_pd(tree):
+    a,b = recur_nw_pd(tree,len(leaves(tree)),[])
+    return b
 
 #replace leaves with labels
 def encode_leaves(bt,ab):
@@ -188,6 +193,32 @@ def all_trees(bt):
         t.append(recur_pd_nw('%016.10f' % i, trail(reasign(swap_root(tb,i),bt))))
         print(recur_pd_nw('%016.10f' % i, trail(reasign(swap_root(tb,i),bt))))
     return t
+
+#export all node descendents to a dictionary 
+def nodes_w_all_descendants(tree):
+    t2 = {}
+    n = 0
+    for i in leaves(tree):
+        t2[i] = [i]
+        n+=1
+    a,b,c = recur_nw_pd_an(tree,len(leaves(tree)),[],t2)
+    return a,b,c
+    
+def recur_nw_pd_an(bt,n,t,t2):
+    c = 0
+    t2['__'+str(n)] = []
+    for i in bt:
+        if i == '(':
+            c+=1
+        if i == ')':
+            nt = bt.replace('('+bt.split('(')[c].split(')')[0]+')', '__'+str(n))
+            for i2 in bt.split('(')[c].split(')')[0].split(','):
+                t.append([n,i2.split(':')[0], float(i2.split(':')[1])])
+                t2['__'+str(n)] = t2['__'+str(n)] + t2[i2.split(':')[0]]
+            n+=1
+            c-=1
+            return recur_nw_pd_an(nt,n,t,t2)
+    return bt,t,t2
 
 def extract_subtree(tree, leaves_to_keep):
     t = tree
