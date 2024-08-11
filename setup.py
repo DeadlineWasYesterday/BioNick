@@ -49,7 +49,7 @@ EXTENSIONS = []
 
 setup(
     name="BioNick",
-    version='0.0.01',
+    version='0.0.3',
     author="Md Nafis Ul Alam",
     author_email="deadlinewasyesterday@gmail.com",
     url="https://github.com/DeadlineWasYesterday/BioNick",

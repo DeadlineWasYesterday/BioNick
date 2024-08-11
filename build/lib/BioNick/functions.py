@@ -71,8 +71,8 @@ def swap_root(tb,x):
     df2 = df.copy()
     while (x in df[1].unique()):
         #swap
-        tmp = int(df.loc[df[1] == x, 0])
-        df2.loc[df[1] == x, 0] = int(df2.loc[df[1] == x, 1])
+        tmp = int(df.loc[df[1] == x, 0].iloc[0])
+        df2.loc[df[1] == x, 0] = int(df2.loc[df[1] == x, 1].iloc[0])
         df2.loc[df[1] == x, 1] = tmp
 
         #print(tmp,x)
@@ -130,6 +130,19 @@ def recur_pd_nw(nt,df):
             return recur_pd_nw(nt.replace(i,expand_node(df,i)),df)
     return nt    
 
+#root at taxon
+def root_at(tree,taxon):
+    a,b = recur_nw_pd(tree,len(leaves(tree)),[])
+    d = pd.DataFrame(b)
+    i = d.loc[d[1] == taxon,0].iloc[0] #new root    
+    tb = encode_leaves(tree,b)
+    return recur_pd_nw('%016.10f' % i, trail(reasign(swap_root(tb,i),tree)))
+
+#root at node
+def root_at_node(tree,i):
+    a,b = recur_nw_pd(tree,len(leaves(tree)),[])    
+    tb = encode_leaves(tree,b)
+    return recur_pd_nw('%016.10f' % i, trail(reasign(swap_root(tb,i),tree)))
 
 #flip label order
 def expand_node_flip(df,node):
@@ -275,9 +288,9 @@ def recur_sin(new):
             leaf_without_branch = leaf.split(':')[0]
             inner_branch = float(leaf.split(':')[1])
             outer_branch = float(new.split(enclosed_leaf)[1].split(',')[0].split(')')[0][1:])
-            new_branch = round(inner_branch+outer_branch,8)
-            enclosed_leaf_with_outer_branch = enclosed_leaf+':'+str(outer_branch)
-            new = new.replace(enclosed_leaf_with_outer_branch, leaf_without_branch+':'+str(new_branch))
+            new_branch = round(inner_branch+outer_branch,9)
+            enclosed_leaf_with_outer_branch = enclosed_leaf+':'+f"{outer_branch:.10f}"
+            new = new.replace(enclosed_leaf_with_outer_branch, leaf_without_branch+':'+f"{new_branch:.10f}")
             return recur_sin(new)
     return new
 
