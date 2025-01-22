@@ -1,6 +1,4 @@
-import ast
-import os
-import sys
+import ast, os, sys
 
 try:
     from setuptools import __version__ as setuptools_version
@@ -34,12 +32,11 @@ if setuptools_version_tuple < (70, 1) and "bdist_wheel" in sys.argv:
 MIN_PY_VER = (3, 5)
 if sys.version_info[:2] < MIN_PY_VER:
     sys.stderr.write(
-        ("ERROR: Biopython requires Python %i.%i or later. " % MIN_PY_VER)
+        ("ERROR: Requires Python %i.%i or later. " % MIN_PY_VER)
         + ("Python %d.%d detected.\n" % sys.version_info[:2])
     )
     sys.exit(1)
-elif sys.version_info[:2] == (3, 9):
-    sys.stderr.write("WARNING: Biopython support for Python 3.9 is now deprecated.\n")
+
 
 REQUIRES = ["numpy", "pandas", "matplotlib"]
 
@@ -49,7 +46,7 @@ EXTENSIONS = []
 
 setup(
     name="BioNick",
-    version='0.0.3',
+    version='0.0.4',
     author="Md Nafis Ul Alam",
     author_email="deadlinewasyesterday@gmail.com",
     url="https://github.com/DeadlineWasYesterday/BioNick",

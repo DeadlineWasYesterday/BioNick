@@ -22,6 +22,17 @@ def leaves_wb(nw):
 #make sure labels are unique. Append numbers if they are not
 #assert len(leaves(bt)) == len(set(leaves(bt)))
 
+#remoe node labels
+def remove_node_labels(tree):
+    new = tree
+    c=0
+    for i in tree:
+        if i == ')':
+            c+=1
+            new = ')'.join(new.split(')')[:c]) + ')' + ':' + ':'.join(')'.join(new.split(')')[c:]).split(':')[1:])     
+    new = new[:-1]
+    return new
+
 #label leaves
 def lale(nw):
     t = {}
@@ -289,7 +300,8 @@ def recur_sin(new):
             inner_branch = float(leaf.split(':')[1])
             outer_branch = float(new.split(enclosed_leaf)[1].split(',')[0].split(')')[0][1:])
             new_branch = round(inner_branch+outer_branch,9)
-            enclosed_leaf_with_outer_branch = enclosed_leaf+':'+f"{outer_branch:.10f}"
+            outer_branch_str = new.split(enclosed_leaf)[1].split(',')[0].split(')')[0][1:]
+            enclosed_leaf_with_outer_branch = enclosed_leaf+':'+outer_branch_str
             new = new.replace(enclosed_leaf_with_outer_branch, leaf_without_branch+':'+f"{new_branch:.10f}")
             return recur_sin(new)
     return new
