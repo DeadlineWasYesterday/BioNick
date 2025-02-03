@@ -46,11 +46,13 @@ EXTENSIONS = []
 
 setup(
     name="BioNick",
-    version='0.0.4',
+    version='0.0.6',
     author="Md Nafis Ul Alam",
     author_email="deadlinewasyesterday@gmail.com",
     url="https://github.com/DeadlineWasYesterday/BioNick",
     description="Tools for newick file manipulation and visualization.",
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     classifiers=[
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",

@@ -330,8 +330,9 @@ def remove_leaf(tree,name):
     return new
 
 
-#draw a cladogram
-def draw_clad(tree):
+# visualize a cladogram from a newick string
+
+def draw_clad(tree, dash = False, labels = False):
     root_node,b = recur_nw_pd(tree,len(leaves(tree)),[])    
     m = pd.DataFrame(encode_leaves(tree,b))
     
@@ -373,9 +374,34 @@ def draw_clad(tree):
     for k,v in t4.items():
         plt.plot([t2[k],t2[k]],v, color = 'darkblue')
 
-    #dash to leaves
-#     for a,b,c in n.values[:len(leaves(tree))]:
-#         plt.plot([c,max(t2.values())],[a,a], linestyle = '--', color = 'darkblue')
+
+    if dash and labels:
+        #dash to leaves
+        for a,b,c in n.values[:len(leaves(tree))]:
+            plt.plot([c,max(t2.values())],[a,a], linestyle = '--', color = 'darkblue')
+
+        #labels
+        i=0
+        tmp = leaves(tree)
+        for a,b,c in n.values[:len(tmp)]:
+            plt.text(max(t2.values())+0.02,a,tmp[i])
+            i+=1
+
+    elif dash:
+        #dash to leaves
+        for a,b,c in n.values[:len(leaves(tree))]:
+            plt.plot([c,max(t2.values())],[a,a], linestyle = '--', color = 'darkblue')
+        
+    elif labels:
+        #labels
+        i=0
+        tmp = leaves(tree)
+        for a,b,c in n.values[:len(tmp)]:
+            plt.text(b+0.02,a,tmp[i])
+            i+=1
+            
+            
+
             
 #for vertical distancing of nodes. mean of first and last edge that go right from a node.
 def mean_d(m,node,t1):
@@ -400,3 +426,156 @@ def ab(m,node,t1):
             return [s,pb]
         pb = t1[b]
     return [s,pb]
+
+
+
+
+#neighbor-joining implemented with numpy
+def nj(dm,sq):
+    if dm.shape[0] == 2:
+        sq.append((0,0,1,dm[0,1]))
+        return sq
+    n=dm.shape[0]
+    #nj matrix
+    dn = dm*(n-2) - dm.sum(axis=0) - [[x] for x in dm.sum(axis=0)]
+    np.fill_diagonal(dn,0)
+    #print(dn)
+    #indices
+    i,j = np.unravel_index(np.argmin(dn), dn.shape)
+    #branches
+    ib = 0.5*(dm[i,j]+abs(dm.sum(axis=0)[i] - dm.sum(axis=0)[j])/(dm.shape[0]-2))
+    jb = 0.5*(dm[i,j]-abs(dm.sum(axis=0)[i] - dm.sum(axis=0)[j])/(dm.shape[0]-2))
+    
+    #update matrix
+    t = []
+    for k in range(n):
+        t.append((dm[i,k]+dm[k,j]-dm[i,j])/2)
+
+    dm = np.vstack([dm,t])
+    t.append(0)
+    dm = np.hstack([dm,[[x] for x in t]])
+    #print(dm)
+
+    d1,d2 = min(i,j),max(i,j)
+    dm = np.delete(np.delete(dm,d2,axis=0),d2,axis=1)
+    dm = np.delete(np.delete(dm,d1,axis=0),d1,axis=1)
+
+    np.fill_diagonal(dm,0)
+    #print(dm)
+    
+
+    #sequence
+    sq.append((i,ib,j,jb))
+    return nj(dm.copy(),sq)
+
+
+#neighbor-joining implemented with pandas
+##distance matrix dataframe rows and columns must be str
+#outputs sequence of collapsed nodes as list of tuples
+
+def nj(dm,sq):
+    
+    if dm.shape[0] == 2:
+        sq.append((0,0,dm.columns[1],dm.iloc[0,1]))
+        return sq
+    n=dm.shape[0]
+    #nj matrix
+    dn = (dm*(n-2)).subtract(dm.sum().values,axis=0).subtract(dm.sum().values,axis=1)
+    np.fill_diagonal(dn.values,0)
+    #print(dn)
+    #indices
+    i,j = np.unravel_index(np.argmin(dn.values), dn.shape)
+    #branches
+    ib = 0.5*(dm.iloc[i,j]+abs(dm.sum(axis=0).iloc[i] - dm.sum(axis=0).iloc[j])/(dm.shape[0]-2))
+    jb = 0.5*(dm.iloc[i,j]-abs(dm.sum(axis=0).iloc[i] - dm.sum(axis=0).iloc[j])/(dm.shape[0]-2))
+    
+    #update matrix
+    t = []
+    for k in range(n):
+        t.append((dm.iloc[i,k]+dm.iloc[k,j]-dm.iloc[i,j])/2)
+
+    dm.loc[len(sq)+10000,:] = t
+    t.append(0)
+    #print(dm)
+    dm.loc[:,len(sq)+10000] = t
+    #print(dm)
+
+    #sequence
+    sq.append((dm.index[i],ib,dm.columns[j],jb))
+    
+    dm = dm.drop(index = [dm.index[i],dm.index[j]], columns = [dm.columns[i],dm.columns[j]])
+    np.fill_diagonal(dm.values,0)
+    #print(dm)
+
+    return nj(dm.copy(),sq)
+
+
+#neighbor-joining output as tree object
+##takes nj output as dataframe object. returns bn.tree object.
+
+from .interface import tree
+
+#int node naming fixed
+def njtr(vt):
+    tt = tree([])
+    i=0
+    for a,b,c,d in vt.values[:-1]:
+        if not isinstance(a,str): #some kind of strange int vs numpyint instance issue on the second to last df entry
+            a = a-10000
+            nodet = tt.get_node(a)
+            nodet.add_connection(i,b)
+        else: #tip
+            tt.add_node(node(a,[i],[b]))
+    
+        if not isinstance(c,str):
+            c = c-10000
+            nodet = tt.get_node(c)
+            nodet.add_connection(i,d)
+        else: #tip
+            tt.add_node(node(c,[i],[d]))
+        
+        node1 = node(i,[],[])    
+        node1.add_connection(a,b)
+        node1.add_connection(c,d)
+        tt.add_node(node1)
+        i+=1
+    
+    #last connection
+    a,b,c,d = vt.values[-1]
+    if not isinstance(c,str): #internal #connect last two (?)
+        tt.get_node(c-10000).add_connection(i-2,d)
+        tt.get_node(i-2).add_connection(c-10000,d) #reciprocate
+    else: #tip #connect to last
+        tt.add_node(node(c,[i-1],[d]))
+        tt.get_node(i-1).add_connection(c,d)
+
+    return tt
+
+
+# #tests
+# tx = pd.DataFrame([[0,5,9,9,8],[5,0,10,10,9],[9,10,0,8,7],[9,10,8,0,3],[8,9,7,3,0]])
+# tx.index = 't'+tx.index.astype(str)
+# tx.columns = 't'+tx.columns.astype(str)
+# tt = njtr(pd.DataFrame(nj(tx.copy(),[])))
+# tt.root_at_node(0)
+# tt.export_nw('','')
+
+# ya = pd.DataFrame([[0,13,21,22],[13,0,12,13],[21,12,0,13],[22,13,13,0]])
+# ya.index = 't'+ya.index.astype(str)
+# ya.columns = 't'+ya.columns.astype(str)
+# tt = njtr(pd.DataFrame(nj(ya.copy(),[])))
+# tt.root_at_node(0)
+# tt.export_nw('','')
+
+
+
+#format distance matrix
+##copies top diagonal to bottom to make matrix symmetrical
+
+def pdm(ba):
+    ca = pd.DataFrame(syndm(ba))
+    labs = ca[0].values
+    ca = ca.iloc[:,1:]
+    ca = pd.DataFrame(ca.values + ca.values.T - np.diag(np.diag(ca.values)))
+    ca.index,ca.columns = labs,labs
+    return ca
