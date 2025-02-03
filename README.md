@@ -145,12 +145,12 @@ Note: ['A','B','C'] crashes for some reason. It is assumed to work properly on b
 
     ```
 
-    Example output:
+    Example output: 
 
     Dashed:
 
-    ![Alt Text](https://github.com/DeadlineWasYesterday/BioNick/Tests/Oryza_dashed.png)
+    ![Alt Text](https://github.com/DeadlineWasYesterday/BioNick/blob/main/Tests/Oryza_dashed.png)
 
     Not dashed:
 
-    ![Alt Text](https://github.com/DeadlineWasYesterday/BioNick/Tests/Oryza_nodash.png)
+    ![Alt Text](https://github.com/DeadlineWasYesterday/BioNick/blob/main/Tests/Oryza_nodash.png)
