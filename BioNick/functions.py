@@ -1,6 +1,8 @@
 #import random
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from .interface import node, tree, newick
 
 #test data
 #bt  = "(t6:0.3806255851,(t7:0.5440872659,(t5:0.6203179485,t1:0.7089423968):0.3421749519):0.2618428892,((t4:0.5886056426,t3:0.8614832051):0.09094934678,(t8:0.6766210056,t2:0.1412485428):0.4451906278):0.2356684168)"
@@ -402,7 +404,7 @@ def draw_clad(tree, dash = False, labels = False):
             
             
 
-            
+
 #for vertical distancing of nodes. mean of first and last edge that go right from a node.
 def mean_d(m,node,t1):
     sw = False
@@ -431,7 +433,7 @@ def ab(m,node,t1):
 
 
 #neighbor-joining implemented with numpy
-def nj(dm,sq):
+def nj_numpy(dm,sq):
     if dm.shape[0] == 2:
         sq.append((0,0,1,dm[0,1]))
         return sq
@@ -573,7 +575,7 @@ def njtr(vt):
 ##copies top diagonal to bottom to make matrix symmetrical
 
 def pdm(ba):
-    ca = pd.DataFrame(syndm(ba))
+    ca = pd.DataFrame(ba)
     labs = ca[0].values
     ca = ca.iloc[:,1:]
     ca = pd.DataFrame(ca.values + ca.values.T - np.diag(np.diag(ca.values)))
