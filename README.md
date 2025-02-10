@@ -146,9 +146,9 @@ All following examples call functions from ``` bn ``` and assume that node label
 
     Example output: 
 
-    Dashed:
-    <img src="https://ava.genome.arizona.edu/UniPhy/web/Oryza_dashed.png" width="400">
 
-    Not dashed:
 
-    <img src="https://ava.genome.arizona.edu/UniPhy/web/Oryza_nodash.png" width="400">
+    Dashed             |  Not dashed
+    :-------------------------:|:-------------------------:
+    <img src="https://ava.genome.arizona.edu/UniPhy/web/Oryza_dashed.png" width="250"> |  <img src="https://ava.genome.arizona.edu/UniPhy/web/Oryza_nodash.png" width="250">
+    
