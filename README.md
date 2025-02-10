@@ -14,9 +14,9 @@ pip install BioNick
 ```
 Python (tested with 3.9.19)
 │
-│───numpy (tested with 2.0.2)
-│───pandas (tested with 2.2.3)
-└───matplotlib (tested with 3.9.4)
+│─── numpy (tested with 2.0.2)
+│─── pandas (tested with 2.2.3)
+└─── matplotlib (tested with 3.9.4)
 ```
 
 
@@ -86,7 +86,6 @@ All following examples call functions from ``` bn ``` and assume that node label
     ``` bn.nodes_w_all_descendants(tree) ```
 
 11. Extract subtree. Remove all leaves except those listed. In this example, ['A','B','D'] are kept. 
-Note: ['A','B','C'] crashes for some reason. It is assumed to work properly on bigger trees. I will revisit this bug.
 
     ``` bn.extract_subtree(tree, ['A','B','D']) ```
 
@@ -149,8 +148,9 @@ Note: ['A','B','C'] crashes for some reason. It is assumed to work properly on b
 
     Dashed:
 
-    ![Alt Text](https://github.com/DeadlineWasYesterday/BioNick/Tests/Oryza_dashed.png)
+    <img src="https://ava.genome.arizona.edu/UniPhy/web/Oryza_dashed.png" width="400">
 
     Not dashed:
 
-    ![Alt Text](https://github.com/DeadlineWasYesterday/BioNick/Tests/Oryza_nodash.png)
+    <img src="https://ava.genome.arizona.edu/UniPhy/web/Oryza_nodash.png" width="400">
+

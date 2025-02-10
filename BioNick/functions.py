@@ -4,6 +4,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from .interface import node, tree, newick
 
+
+## bug in extract_subtree. the following list will not extract unless edges are flipped.
+# ['Ochetophila_trinervis', 'Elaeagnus_macrophylla', 'Dryas_drummondii', 'Purshia_tridentata',
+#  'Rubus_parviflorus', 'Geum_urbanum', 'Rosa_persica', 'Potentilla_anserina',
+#  'Fragaria_iinumae', 'Prunus_mongolica', 'Gillenia_trifoliata', 'Heteromeles_arbutifolia',
+#  'Aronia_arbutifolia', 'Pyracantha_coccinea', 'Malus_sylvestris', 'Pyrus_pyrifolia',
+#  'Castanea_crenata', 'Notholithocarpus_densiflorus', 'Quercus_gilva', 'Fagus_sylvatica',
+#  'Casuarina_cunninghamiana', 'Alnus_glutinosa', 'Betula_pendula', 'Carpinus_viminea',
+#  'Corylus_avellana', 'Morella_rubra', 'Carya_illinoinensis', 'Juglans_mandshurica',
+#  'Cyclocarya_paliurus', 'Pterocarya_stenoptera']
+
 #test data
 #bt  = "(t6:0.3806255851,(t7:0.5440872659,(t5:0.6203179485,t1:0.7089423968):0.3421749519):0.2618428892,((t4:0.5886056426,t3:0.8614832051):0.09094934678,(t8:0.6766210056,t2:0.1412485428):0.4451906278):0.2356684168)"
 #ot = '(((((((((A_O.sativa:0.1,A_O.glaberrima:0.1):0.1,(A_O.barthii:0.1,A_O.glumipatula:0.1):0.1):0.1,(A_O.meridionalis:0.1,A_O.nivara:0.1,A_O.rufipogon:0.1):0.1):0.1,B_O.punctata:0.1):0.1,((C_O.officinalis:0.1,C_O.alta:0.1):0.1,D_O.alta:0.1):0.1):0.1,E_O.australiensis:0.1):0.1,F_O.brachyantha:0.1):0.1,(K_O.coarctata:0.1,L_O.coarctata:0.1):0.1):0.1,OG_L.perrieri:0.1)'
@@ -317,7 +328,7 @@ def remove_leaf(tree,name):
     else:
         comma = 0
     close = tree.split(name)[1].index(')')
-    if close < comma:
+    if (close < comma) or (comma == 0):
         trailing = ')'.join(tree.split(name)[1].split(')')[1:])
         new = leading[:-1] + ')' + trailing #:-1 removes last comma
     else:

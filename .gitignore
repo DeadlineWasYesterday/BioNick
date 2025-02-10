@@ -1,1 +1,4 @@
 BioNick.egg-info/
+build
+dist
+Tests
