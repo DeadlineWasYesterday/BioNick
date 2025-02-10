@@ -147,18 +147,8 @@ All following examples call functions from ``` bn ``` and assume that node label
     Example output: 
 
     Dashed:
-
-<<<<<<< HEAD
     <img src="https://ava.genome.arizona.edu/UniPhy/web/Oryza_dashed.png" width="400">
 
     Not dashed:
 
     <img src="https://ava.genome.arizona.edu/UniPhy/web/Oryza_nodash.png" width="400">
-
-=======
-    ![Alt Text](https://github.com/DeadlineWasYesterday/BioNick/blob/main/Tests/Oryza_dashed.png)
-
-    Not dashed:
-
-    ![Alt Text](https://github.com/DeadlineWasYesterday/BioNick/blob/main/Tests/Oryza_nodash.png)
->>>>>>> 5824a90b6c3ac97faa9100876512deea8a5d5b83
